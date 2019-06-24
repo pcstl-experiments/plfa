@@ -104,6 +104,8 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _^_)
 +-comm′ m zero rewrite +-identity′ m               = refl
 +-comm′ m (suc n) rewrite +-suc′ m n | +-comm′ m n = refl
 
+
+-- TODO: Rewrite using equational reasoning
 +-swap : ∀ (m n p : ℕ) → m + (n + p) ≡ n + (m + p)
 +-swap m n p rewrite +-comm′ m (n + p)
                    | +-assocˡ n p m
@@ -122,6 +124,7 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _^_)
 *-identityʳ zero                          = refl
 *-identityʳ (suc n) rewrite *-identityʳ n = refl
 
+-- TODO: Rewrite using equational reasoning
 *-suc : ∀ (m n : ℕ) → m * suc n ≡ m + (m * n)
 *-suc zero n                                 = refl
 *-suc (suc m) n rewrite *-suc m (suc n)
@@ -144,4 +147,24 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _^_)
 ∸-assoc-+ zero    (suc n) p rewrite 0∸n≡0 p         = refl
 ∸-assoc-+ (suc m) (suc n) p rewrite ∸-assoc-+ m n p = refl
 
--- TODO: Stretches
+
+*-assoc : ∀ (m n p : ℕ) → m * (n * p) ≡ (m * n) * p
+*-assoc zero    n p = refl
+*-assoc (suc m) n p rewrite *-distrib-+ n (m * n) p
+                          | *-assoc m n p = refl
+
+
+-- TODO: Rewrite using equational reasoning
+^-over-+ : ∀ (m n p : ℕ) → m ^ (n + p) ≡ (m ^ n) * (m ^ p)
+^-over-+ m zero p rewrite +-identityʳ (m ^ p) = refl
+^-over-+ m (suc n) zero rewrite +-identityʳ (suc n)
+                              | +-identityʳ n 
+                              | *-identityʳ (m * (m ^ n)) = refl
+^-over-+ m (suc n) (suc p) rewrite +-suc n p
+                                 | ^-over-+ m n p
+                                 | *-comm (m ^ n) (m ^ p)
+                                 | *-assoc m (m ^ p) (m ^ n)
+                                 | *-comm (m * (m ^ p)) (m ^ n)
+                                 | *-assoc m (m ^ n) (m * (m ^ p)) = refl
+
+-- TODO: Other stretches
