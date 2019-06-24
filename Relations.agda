@@ -54,5 +54,5 @@ data Total ( m n : ℕ ) : Set where
 +-mono-≤ : ∀ ( m n p q : ℕ ) → m ≤ n → p ≤ q → m + p ≤ n + q
 +-mono-≤ m n p q m≤n p≤q = ≤-trans (+-monoˡ-≤ m n p m≤n) (+-monoʳ-≤ n p q p≤q)
 
-// TODO: Strict inequality + stretches
+-- TODO: Strict inequality + stretches
 
