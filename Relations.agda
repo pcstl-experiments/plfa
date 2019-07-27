@@ -2,8 +2,8 @@ module plfa.Relations where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong)
-open import Data.Nat using (ℕ; zero; suc; _+_)
-open import Data.Nat.Properties using (+-comm; +-suc)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
+open import Data.Nat.Properties using (+-comm; +-suc; *-comm)
 
 data _≤_ : ℕ → ℕ → Set where
   z≤n : ∀ { n : ℕ } → zero ≤ n
@@ -53,6 +53,38 @@ data Total ( m n : ℕ ) : Set where
 
 +-mono-≤ : ∀ ( m n p q : ℕ ) → m ≤ n → p ≤ q → m + p ≤ n + q
 +-mono-≤ m n p q m≤n p≤q = ≤-trans (+-monoˡ-≤ m n p m≤n) (+-monoʳ-≤ n p q p≤q)
+
+*-zeroʳ : ∀ ( n : ℕ ) → n * zero ≡ zero
+*-zeroʳ zero    = refl
+*-zeroʳ (suc n) = *-zeroʳ n
+
++-assocʳ : ∀ (m n p : ℕ) → m + (n + p) ≡ (m + n) + p
++-assocʳ zero    n p                        = refl
++-assocʳ (suc m) n p rewrite +-assocʳ m n p = refl
+
+*-suc : ∀ ( m n : ℕ ) → m * suc n ≡ m + m * n
+*-suc zero n                                 = refl
+*-suc (suc m) n rewrite *-suc m (suc n)
+                      | *-suc m n
+                      | +-assocʳ n m (m * n)
+                      | +-assocʳ m n (m * n)
+                      | +-comm n m          = refl
+
+*-monoʳ-≤ : ∀ ( n p q : ℕ ) → p ≤ q → n * p ≤ n * q
+*-monoʳ-≤ zero    p       q       p≤q                         = z≤n
+*-monoʳ-≤ (suc n) zero    q       p≤q rewrite *-zeroʳ (suc n) = z≤n
+*-monoʳ-≤ (suc n) (suc p) (suc q) (s≤s p≤q) =
+  s≤s (+-mono-≤ p q (n * suc p) (n * suc q)
+                p≤q
+                (*-monoʳ-≤ n (suc p) (suc q)
+                  (s≤s p≤q)))
+
+*-monoˡ-≤ : ∀ ( m n p : ℕ ) → m ≤ n → m * p ≤ n * p
+*-monoˡ-≤ m n p m≤n rewrite *-comm m p
+                          | *-comm n p = *-monoʳ-≤ p m n m≤n
+
+*-mono-≤ : ∀ ( m n p q : ℕ ) → m ≤ n → p ≤ q → m * p ≤ n * q
+*-mono-≤ m n p q m≤n p≤q = ≤-trans (*-monoˡ-≤ m n p m≤n) (*-monoʳ-≤ n p q p≤q)
 
 infix 4 _<_
 
@@ -137,4 +169,4 @@ e+o≡o (suc om) on = suc (o+o≡e om on)
 
 o+o≡e (suc em) on = suc (e+o≡o em on)
 
--- TODO: stretches
+-- TODO: Bin stuff

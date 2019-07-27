@@ -25,5 +25,3 @@ from : Bin → ℕ
 from nil    =     zero
 from (x0 b) =     2 * (from b)
 from (x1 b) = 1 + 2 * (from b)
-
-
