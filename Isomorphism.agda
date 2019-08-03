@@ -27,5 +27,63 @@ m +′ (suc n) = suc (m +′ n)
 +′-ext-≡-+ : _+′_ ≡ _+_
 +′-ext-≡-+ = extensionality λ m → extensionality λ n → +′-same-as-+ m n
 
--- TODO: Isomorphism
+infix 0 _≃_
+record _≃_ (A B : Set) : Set where
+  field
+    to   : A → B
+    from : B → A
+    from∘to : ∀ (x : A) → from (to x) ≡ x
+    to∘from : ∀ (x : B) → to (from x) ≡ x
+open _≃_
+
+id : ∀ {A : Set} → A → A
+id x = x
+
+≃-refl : ∀ {A : Set} → A ≃ A
+≃-refl =
+  record
+    { to      = id
+    ; from    = id
+    ; from∘to = λ x → refl
+    ; to∘from = λ x → refl
+    }
+
+≃-sym : ∀ {A B : Set} → A ≃ B → B ≃ A
+≃-sym A≃B =
+  record
+    { to      = from A≃B
+    ; from    = to A≃B
+    ; from∘to = to∘from A≃B
+    ; to∘from = from∘to A≃B
+    }
+
+≃-trans : ∀ {A B C : Set} → A ≃ B → B ≃ C → A ≃ C
+≃-trans A≃B B≃C =
+  record
+    { to      = to B≃C ∘ to A≃B
+    ; from    = from A≃B ∘ from B≃C
+    ; from∘to = λ x →
+      begin
+        (from A≃B ∘ from B≃C) ((to B≃C ∘ to A≃B) x)
+      ≡⟨⟩
+        from A≃B (from B≃C (to B≃C (to A≃B x)))
+      ≡⟨ cong (from A≃B) (from∘to B≃C (to A≃B x)) ⟩
+        from A≃B (to A≃B x)
+      ≡⟨ from∘to A≃B x ⟩
+        x
+      ∎
+              
+    ; to∘from = λ x →
+      begin
+        (to B≃C ∘ to A≃B) ((from A≃B ∘ from B≃C) x)
+      ≡⟨⟩
+        to B≃C (to A≃B (from A≃B (from B≃C x)))
+      ≡⟨ cong (to B≃C) (to∘from A≃B (from B≃C x)) ⟩
+        to B≃C (from B≃C x)
+      ≡⟨ to∘from B≃C x ⟩
+        x
+      ∎
+    }
+
+-- TODO: Equational reasoning
 
